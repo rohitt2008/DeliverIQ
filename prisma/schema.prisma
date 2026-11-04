@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   // DRIVER, BILLING_EXECUTIVE, OPERATIONS_HEAD, CLIENT_VIEWER
+  phone     String?
+  language  String   @default("en") // en, hi, mr
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reviews   ProofOfDelivery[] @relation("ReviewedBy")
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  name        String   // Company B (cement), Company C (steel), Company D (packaged foods)
+  industry    String   // Cement, Steel, FMCG / Packaged Foods
+  contactName String?
+  email       String?
+  phoneMasked String?  // DPDP compliant masked phone
+  gstin       String?
+  billingCycle String  @default("WEEKLY") // DAILY, WEEKLY, FORTNIGHTLY, MONTHLY
+  trips       Trip[]
+  invoices    Invoice[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Trip {
+  id              String   @id // e.g. TRP-66120
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id])
+  vehicleNo       String   // e.g. MH20 EL 4521
+  isHiredVehicle  Boolean  @default(false)
+  driverName      String
+  driverPhone     String   // Masked in UI for DPDP Act
+  origin          String   @default("Chhatrapati Sambhajinagar")
+  destination     String   // Nagpur, Pune, Indore, etc.
+  branch          String   @default("Chhatrapati Sambhajinagar")
+  freightAmount   Float    // in INR e.g. 38500
+  material        String   // Cement 50kg Bags, Steel TMT Bars, Packaged Edible Oil
+  expectedQty     Int      // Expected units / bags / cartons
+  unit            String   @default("units")
+  lrNumber        String   @unique // Lorry Receipt Number
+  ewayBillNumber  String   @unique // e-Way Bill Number
+  dispatchDate    DateTime
+  deliveredDate   DateTime?
+  podStatus       String   @default("MISSING") // MISSING, RETAKE_REQUESTED, NEEDS_REVIEW, VERIFIED, INVOICED
+  remarks         String?
+  smsMagicToken   String   @unique // For hired drivers SMS upload link
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  pod             ProofOfDelivery?
+  invoiceId       String?
+  invoice         Invoice? @relation(fields: [invoiceId], references: [id])
+}
+
+model ProofOfDelivery {
+  id                 String   @id @default(cuid())
+  tripId             String   @unique
+  trip               Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  imageUrl           String   // Path or URL to compressed POD image
+  compressedSizeKb   Float    // Must be < 300 KB
+  capturedAt         DateTime
+  uploadedAt         DateTime @default(now())
+  gpsLat             Float?
+  gpsLng             Float?
+  gpsAccuracy        Float?   // in meters
+  gpsLocationName    String?  // e.g. "MIDC Waluj Gate 2, Sambhajinagar"
+  isOfflineSync      Boolean  @default(false)
+  retakeCount        Int      @default(0) // Capped at 2
+
+  // AI Extraction Results
+  aiConfidence       Float    @default(0.0) // 0 to 1
+  lrNumberDetected   String?
+  lrMatchesTrip      Boolean  @default(false)
+  stampDetected      Boolean  @default(false)
+  stampClarityScore  Float    @default(0.0) // 0 to 1
+  signatureDetected  Boolean  @default(false)
+  qtyReceived        Int?
+  qtyDiscrepancy     Int      @default(0) // expected - received
+  remarksDetected    String?  // Shortage or damage remarks
+  isShortageOrDamage Boolean  @default(false)
+  aiRawResponse      String?  // JSON string of full AI analysis
+
+  // Human Review & Audit
+  reviewedById       String?
+  reviewedBy         User?    @relation("ReviewedBy", fields: [reviewedById], references: [id])
+  reviewedAt         DateTime?
+  reviewNotes        String?
+  executiveRemarks   String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Invoice {
+  id              String   @id // e.g. INV-2026-0042
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id])
+  billingPeriod   String   // e.g. "2026-W44"
+  totalFreight    Float
+  deductions      Float    @default(0.0) // Shortage or penalty deduction
+  netPayable      Float
+  status          String   @default("GENERATED") // GENERATED, TALLY_EXPORTED, SENT_TO_CLIENT, PAID
+  tallyExportedAt DateTime?
+  trips           Trip[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String   // POD_CAPTURED, AI_ANALYZED, RETAKE_REQUESTED, POD_VERIFIED, TALLY_EXPORTED, PII_ACCESSED
+  actorRole String   // DRIVER, SYSTEM, BILLING_EXECUTIVE, OPERATIONS_HEAD
+  actorName String
+  details   String
+  ipAddress String?
+  timestamp DateTime @default(now())
+}
