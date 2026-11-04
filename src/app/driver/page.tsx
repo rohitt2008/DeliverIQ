@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Truck, AlertCircle, CheckCircle2, ChevronRight, HelpCircle, PhoneCall, Sparkles } from 'lucide-react';
 import DriverCaptureView, { DriverTripData } from '@/components/DriverCaptureView';
+import AudioVoiceTester from '@/components/AudioVoiceTester';
 
 export default function DriverPage() {
   const [trips, setTrips] = useState<DriverTripData[]>([]);
@@ -141,6 +142,9 @@ export default function DriverPage() {
             <p className="text-slate-500 text-sm">No trips assigned.</p>
           </div>
         )}
+
+        {/* Audio Voice Tester for Reviewer Demonstration */}
+        <AudioVoiceTester />
 
         {/* Driver Quick Tips Accordion */}
         <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200/80 text-xs text-slate-600 space-y-2">
