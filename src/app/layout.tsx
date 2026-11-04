@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: 'DeliverIQ | FTL Proof of Delivery (POD) & Tally Automation',
   description:
     'End-to-end full truckload POD capture, AI verification, billing queue with Tally Prime export for Company A, Chhatrapati Sambhajinagar.',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({

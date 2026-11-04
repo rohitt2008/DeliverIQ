@@ -1,0 +1,16 @@
+{
+  "name": "DeliverIQ - FTL Proof of Delivery",
+  "short_name": "DeliverIQ",
+  "description": "Full-truckload POD capture, gate stamp verification, and Tally Prime automation for Company A, Sambhajinagar.",
+  "start_url": "/driver",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/sample-pods/TRP-66120-pod.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
