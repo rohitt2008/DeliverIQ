@@ -61,7 +61,7 @@ export async function logPIIAccess({
   fieldName: string;
 }) {
   try {
-    const { default: prisma } = await import('./prisma.ts');
+    const { default: prisma } = await import('./prisma');
     await prisma.auditLog.create({
       data: {
         action: 'PII_ACCESSED',
