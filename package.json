@@ -10,7 +10,8 @@
     "postinstall": "prisma generate",
     "seed": "node scripts/seed.mjs",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
-    "package": "python3 scripts/generate-tdd-pdf.py && node scripts/package-submission.mjs"
+    "package": "python3 scripts/generate-tdd-pdf.py && node scripts/package-submission.mjs",
+    "verify": "node scripts/verify-all.mjs"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
