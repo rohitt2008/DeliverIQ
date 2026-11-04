@@ -7,8 +7,6 @@
  * 3. Audit trail generation for PII access by billing executives.
  */
 
-import prisma from './prisma';
-
 /**
  * Masks a phone number (e.g. "+91 98220 54321" -> "+91 98•••• 4321")
  */
@@ -63,6 +61,7 @@ export async function logPIIAccess({
   fieldName: string;
 }) {
   try {
+    const { default: prisma } = await import('./prisma.ts');
     await prisma.auditLog.create({
       data: {
         action: 'PII_ACCESSED',

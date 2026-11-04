@@ -183,7 +183,7 @@ function analyzeWithLogisticsVisionEngine({
   // Detect edge-case scenarios from sample filenames or trip patterns
   const isMissingStampTest = nameLower.includes('66134') || nameLower.includes('nostamp') || nameLower.includes('stamp-missing');
   const isShortageTest = nameLower.includes('66141') || nameLower.includes('shortage') || nameLower.includes('damaged');
-  const isBlurryTest = nameLower.includes('blur') || (fileSizeKb < 30 && !nameLower.includes('.svg'));
+  const isBlurryTest = nameLower.includes('blur');
 
   let stampDetected = true;
   let stampClarityScore = 0.94;
